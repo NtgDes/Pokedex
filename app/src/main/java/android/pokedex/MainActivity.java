@@ -104,8 +104,7 @@ public class MainActivity extends AppCompatActivity {
 
 			public PokemonView(@NonNull View itemView) {
 				super(itemView);
-
-
+				PokemonCard=itemView.findViewById(R.id.cvPokemon);
 				txtID =itemView.findViewById(R.id.txtID);
 				txtName=itemView.findViewById(R.id.txtName);
 				imgProfile =itemView.findViewById(R.id.imgProfile);
@@ -130,7 +129,7 @@ public class MainActivity extends AppCompatActivity {
 			holder.txtID.setText("#"+pokemons.get(position).ID);
 
 
-			if (pokemons.get(position).Sprite==null)
+			if (pokemons.get(position).Sprite==null){
 				new ApiData(pokemons.get(position).SpriteURL, sprite -> {
 					if(sprite==null)
 						return;
@@ -139,8 +138,17 @@ public class MainActivity extends AppCompatActivity {
 					holder.imgProfile.setImageBitmap(pokemons.get(position).Sprite);
 
 				});
+				holder.imgProfile.setImageResource(R.drawable.pokeball);
+			}else
+				holder.imgProfile.setImageBitmap(pokemons.get(position).Sprite);
 
+			holder.PokemonCard.setOnClickListener(view -> {
 
+				DetailedView PokemonStats = new DetailedView();
+				PokemonStats.PokemonData=pokemons.get(position);
+				PokemonStats.show(getSupportFragmentManager(),null);
+
+			});
 
 		}
 
