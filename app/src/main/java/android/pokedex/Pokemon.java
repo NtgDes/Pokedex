@@ -1,7 +1,15 @@
 package android.pokedex;
 
+import android.graphics.Bitmap;
+
 public class Pokemon {
 	int ID;
 	String Name;
-	String Image;
+
+
+	String SpriteURL;
+
+	String DataUrl;
+	Bitmap Sprite;
+
 }

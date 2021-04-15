@@ -1,23 +1,23 @@
 package android.pokedex;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
-	List<Pokemon> pokemons;
+	List<Pokemon> Pokemons;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -30,29 +30,40 @@ public class MainActivity extends AppCompatActivity {
 
 
 		recyclerView.setLayoutManager(new GridLayoutManager(this,2));
-		//new GridLayoutManager(this,2)
-
-		pokemons= new ArrayList<>();
-		pokemons.add(new Pokemon());
-		pokemons.add(new Pokemon());
-		pokemons.add(new Pokemon());
 
 
-		recyclerView.setAdapter(new RecycleViewAdaptor(pokemons));
+		new ApiData(pokemons -> {
+			if(pokemons==null)return;
+			Pokemons =pokemons;
+			recyclerView.setAdapter(new RecycleViewAdaptor(Pokemons));
+
+		});
+
+
+
 
 	}
 
 
 	class RecycleViewAdaptor extends RecyclerView.Adapter<RecycleViewAdaptor.PokemonView>{
-
-		public RecycleViewAdaptor(List<Pokemon> pokemons) {
+		List<Pokemon> pokemons;
+		public RecycleViewAdaptor(List<Pokemon> Pokemons) {
+			pokemons=Pokemons;
 		}
 
 		class PokemonView extends RecyclerView.ViewHolder{
+			CardView PokemonCard;
+			TextView txtID, txtName;
+			ImageView imgProfile;
+
 
 
 			public PokemonView(@NonNull View itemView) {
 				super(itemView);
+
+				txtID =itemView.findViewById(R.id.txtID);
+				txtName=itemView.findViewById(R.id.txtName);
+
 			}
 		}
 
@@ -69,13 +80,14 @@ public class MainActivity extends AppCompatActivity {
 
 		@Override
 		public void onBindViewHolder(@NonNull PokemonView holder, int position) {
-
+			holder.txtName.setText(pokemons.get(position).Name);
+			holder.txtID.setText("#"+pokemons.get(position).ID);
 		}
 
 
 		@Override
 		public int getItemCount() {
-			return 5;
+			return pokemons.size();
 		}
 	}
 
