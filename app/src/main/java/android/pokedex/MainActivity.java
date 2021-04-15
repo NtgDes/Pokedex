@@ -1,9 +1,14 @@
 package android.pokedex;
 
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -13,24 +18,25 @@ import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
-
+	RecyclerView recyclerView;
 	List<Pokemon> Pokemons;
-
+	EditText txtSearch;
+	ImageButton btnClear;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 
-
-
-		RecyclerView recyclerView=findViewById(R.id.recyclerView);
-
-
+		recyclerView=findViewById(R.id.recyclerView);
 		recyclerView.setLayoutManager(new GridLayoutManager(this,2));
 
+		Button btnSearch =findViewById(R.id.btnSearch);
+		btnClear=findViewById(R.id.btnClear);
+		txtSearch=findViewById(R.id.txtSearch);
 
 		new ApiData(pokemons -> {
 			if(pokemons==null)return;
@@ -39,9 +45,47 @@ public class MainActivity extends AppCompatActivity {
 
 		});
 
+		btnSearch.setOnClickListener(view -> {
+			if(Pokemons ==null)return;
+			List<Pokemon> Search= new ArrayList<>();
+
+			for (int i = 0; i < Pokemons.size() ; i++) {
+				if (Pokemons.get(i).Name.contains(txtSearch.getText().toString().trim()))
+					Search.add(Pokemons.get(i));
+			}
+
+			recyclerView.setAdapter(new RecycleViewAdaptor(Search));
+		});
+		btnClear.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View view) {
+				txtSearch.setText("");
+				recyclerView.setAdapter(new RecycleViewAdaptor(Pokemons));
+			}
+		});
+
+		txtSearch.addTextChangedListener(new TextWatcher() {
+			@Override
+			public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+			}
+			@Override
+			public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+			}
+
+			@Override
+			public void afterTextChanged(Editable editable) {
+				if(txtSearch.getText().toString().trim().isEmpty()){
+
+					btnClear.setVisibility(View.INVISIBLE);
+
+				}else
+					btnClear.setVisibility(View.VISIBLE);
 
 
-
+			}
+		});
 	}
 
 
