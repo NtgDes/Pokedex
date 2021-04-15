@@ -8,7 +8,7 @@
 	>
 
 	<ImageView
-		android:id="@+id/imgProfle"
+		android:id="@+id/imgProfile"
 		android:layout_width="0dp"
 		android:layout_height="0dp"
 		app:layout_constraintDimensionRatio="w,1:1"
@@ -27,7 +27,7 @@
 		android:textAlignment="center"
 		android:textSize="20sp"
 		android:textStyle="bold"
-		app:layout_constraintBottom_toBottomOf="@+id/imgProfle"
+		app:layout_constraintBottom_toBottomOf="@+id/imgProfile"
 		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintStart_toStartOf="parent" />
 

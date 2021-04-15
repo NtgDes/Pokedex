@@ -61,8 +61,10 @@ public class MainActivity extends AppCompatActivity {
 			public PokemonView(@NonNull View itemView) {
 				super(itemView);
 
+
 				txtID =itemView.findViewById(R.id.txtID);
 				txtName=itemView.findViewById(R.id.txtName);
+				imgProfile =itemView.findViewById(R.id.imgProfile);
 
 			}
 		}
@@ -82,6 +84,20 @@ public class MainActivity extends AppCompatActivity {
 		public void onBindViewHolder(@NonNull PokemonView holder, int position) {
 			holder.txtName.setText(pokemons.get(position).Name);
 			holder.txtID.setText("#"+pokemons.get(position).ID);
+
+
+			if (pokemons.get(position).Sprite==null)
+				new ApiData(pokemons.get(position).SpriteURL, sprite -> {
+					if(sprite==null)
+						return;
+					pokemons.get(position).Sprite=sprite;
+
+					holder.imgProfile.setImageBitmap(pokemons.get(position).Sprite);
+
+				});
+
+
+
 		}
 
 

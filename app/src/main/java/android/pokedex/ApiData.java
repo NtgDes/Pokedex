@@ -1,5 +1,7 @@
 package android.pokedex;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 
 import org.json.JSONArray;
@@ -16,11 +18,15 @@ import java.util.List;
 public class ApiData {
 	public static final String APIUrl = "https://pokeapi.co/api/v2/";
 	callBackPokemonList callBackResponseList;
+	callBackPokemonBitmap callBackResponseBitmap;
 	public ApiData(callBackPokemonList response) {
 		callBackResponseList =response;
 		new GetData().execute();
 	}
-
+	public ApiData(String spriteURL,callBackPokemonBitmap response) {
+		callBackResponseBitmap =response;
+		new GetImage(spriteURL).execute();
+	}
 
 
 	private class GetData extends AsyncTask<Void, String, String> {
@@ -89,4 +95,28 @@ public class ApiData {
 		}
 	}
 	public interface callBackPokemonList {void  List(List<Pokemon> pokemons);}
+
+	private class GetImage extends  AsyncTask<Void,String, Bitmap>{
+		String spriteURL;
+		public GetImage(String SpriteURL) {
+			spriteURL=SpriteURL;
+		}
+
+		@Override
+		protected Bitmap doInBackground(Void... voids) {
+			try {
+				return BitmapFactory.decodeStream(new URL(spriteURL).openStream());
+			} catch (Exception e) {
+				e.printStackTrace();
+				return null;
+			}
+		}
+
+		@Override
+		protected void onPostExecute(Bitmap bitmap) {
+			callBackResponseBitmap.bitmap(bitmap);
+		}
+	}
+	public interface callBackPokemonBitmap {void  bitmap(Bitmap sprite);}
+
 }
