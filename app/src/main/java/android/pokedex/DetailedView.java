@@ -4,6 +4,7 @@ import android.app.Dialog;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -17,13 +18,12 @@ public class DetailedView extends DialogFragment {
 	TextView txtName,txtID,
 			txtHeight,txtWeight,
 			txtType,txtSpecies,txtHP,
-			txtDefense,txtSpeed;
+			txtAttack,txtDefense,txtSpeed,txtSpecialAttack,txtSpecialDefense;
+	ProgressBar pgHP,pgAttack,pgDefense,pgSpeed,pgSpecialAttack,pgSpecialDefense;
 	@NonNull
 	@Override
 	public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
-
 		AlertDialog.Builder builder=new AlertDialog.Builder(getContext());
-
 
 		View view=getActivity().getLayoutInflater().inflate(R.layout.fragment_detailed,null);
 
@@ -37,38 +37,33 @@ public class DetailedView extends DialogFragment {
 		txtSpecies=view.findViewById(R.id.txtSpecies);
 
 		txtHP=view.findViewById(R.id.txtHP);
-
+		txtAttack=view.findViewById(R.id.txtAttack);
 		txtDefense=view.findViewById(R.id.txtDefense);
 		txtSpeed=view.findViewById(R.id.txtSpeed);
-		txtHP=view.findViewById(R.id.txtHP);
+		txtSpecialAttack=view.findViewById(R.id.txtSpecialAttack);
+		txtSpecialDefense=view.findViewById(R.id.txtSpecialDefense);
 
-		txtDefense=view.findViewById(R.id.txtDefense);
-		txtSpeed=view.findViewById(R.id.txtSpeed);
-
-
-
+		pgHP=view.findViewById(R.id.pbHP);
+		pgAttack=view.findViewById(R.id.pbAttack);
+		pgDefense=view.findViewById(R.id.pbDefense);
+		pgSpeed=view.findViewById(R.id.pbSpeed);
+		pgSpecialAttack=view.findViewById(R.id.pbSpecialAttack);
+		pgSpecialDefense=view.findViewById(R.id.pbSpecialDefense);
 		setData();
 
 		builder.setView(view);
 
 		AlertDialog alertDialog= builder.create();
-
-
-
 		alertDialog.show();
 
-
-
 		return alertDialog;
-
-
-
 	}
 
 	public void RefreshData(Pokemon pokemonData){
 		PokemonData=pokemonData;
 		setData();
 	}
+
 	private void setData(){
 		imgProfile.setImageBitmap(PokemonData.Sprite);
 		txtName.setText(PokemonData.Name);
@@ -82,10 +77,17 @@ public class DetailedView extends DialogFragment {
 		txtSpecies.setText(PokemonData.Species);
 
 		txtHP.setText(""+PokemonData.HP);
-
+		txtAttack.setText(""+PokemonData.Attack);
 		txtDefense.setText(""+PokemonData.Defense);
 		txtSpeed.setText(""+PokemonData.Speed);
+		txtSpecialAttack.setText(""+PokemonData.specialAttack);
+		txtSpecialDefense.setText(""+PokemonData.SpecialDefense);
 
-
+		pgHP.setProgress(PokemonData.HP);
+		pgAttack.setProgress(PokemonData.Attack);
+		pgDefense.setProgress(PokemonData.Defense);
+		pgSpeed.setProgress(PokemonData.Speed);
+		pgSpecialAttack.setProgress(PokemonData.specialAttack);
+		pgSpecialDefense.setProgress(PokemonData.SpecialDefense);
 	}
 }
