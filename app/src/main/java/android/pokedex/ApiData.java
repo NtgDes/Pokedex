@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ApiData {
+	//site url for  PokeAPI and pokemon sprite
 	public static final String
 			APIUrl = "https://pokeapi.co/api/v2/",
 			SpriteURL = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/";
@@ -24,14 +25,32 @@ public class ApiData {
 	callBackPokemonList callBackResponseList;
 	callBackPokemonBitmap callBackResponseBitmap;
 	callBackPokemonData callBackResponseData;
+
+	/**
+	 * Connect to PokeAPI to get a list of pokemons
+	 * @param response Callback with a interface that contains list type Pokemon, contains null if not successful
+	 */
 	public ApiData(callBackPokemonList response) {
 		callBackResponseList =response;
 		new GetList().execute();
 	}
+
+	/**
+	 * Connect to the url given and get sprite Bitmap is returned through interface
+	 * @param spriteURL Provide the url where sprite is located
+	 * @param response Callback with a interface that contains Bitmap of the Pokemon sprite, contains null if not successful
+	 */
 	public ApiData(String spriteURL,callBackPokemonBitmap response) {
 		callBackResponseBitmap =response;
 		new GetImage(spriteURL).execute();
 	}
+
+	/**
+	 * Connect to PokeAPI get pokemon Data, pokemon data that is selected by pokemon name or ID
+	 * @param Name Provide the name of pokemon that data required, set to null to use ID
+	 * @param ID Provide the ID of pokemon that data required , Only used if Name is set to Null
+	 * @param response Callback with a interface that contains Pokemon Data, contains null if not successful
+	 */
 	public ApiData(String Name,int ID,callBackPokemonData response) {
 		callBackResponseData =response;
 		new GetData(Name==null?""+ID:Name).execute();
@@ -42,7 +61,7 @@ public class ApiData {
 		protected String doInBackground(Void... voids) {
 
 			try {
-				return ApIResponse(APIUrl+"pokemon/?limit=2000");
+				return ApIResponse(APIUrl+"pokemon/?limit=2000");//set the limit of the max size of the items in List
 			} catch (Exception e) {
 				e.printStackTrace();
 				return null;
@@ -53,6 +72,7 @@ public class ApiData {
 		protected void onPostExecute(String response) {
 			if (response==null) return;
 
+			//format and add the response to list of type Pokemon
 			try {
 				JSONArray JsonList=new JSONObject(response).getJSONArray("results");
 				if(JsonList.length()>0) {
@@ -62,15 +82,10 @@ public class ApiData {
 
 						pokemon.ID=i+1;
 						pokemon.Name=JsonList.getJSONObject(i).getString("name");
-
-						//--
 						pokemon.SpriteURL=SpriteURL+pokemon.ID+".png";
-
-						//--
-
 						pokemons.add(pokemon);
 					}
-					callBackResponseList.List(pokemons);
+					callBackResponseList.List(pokemons);//callback with List of type Pokemon
 				}
 			} catch (JSONException e) {
 				e.printStackTrace();
@@ -99,7 +114,7 @@ public class ApiData {
 
 		@Override
 		protected void onPostExecute(Bitmap bitmap) {
-			callBackResponseBitmap.bitmap(bitmap);
+			callBackResponseBitmap.bitmap(bitmap);//callback with sprite Bitmap
 		}
 	}
 	public interface callBackPokemonBitmap {void  bitmap(Bitmap sprite);}
@@ -124,6 +139,7 @@ public class ApiData {
 		@Override
 		protected void onPostExecute(String response) {
 			if (response==null) return;
+			//format and add the response to type Pokemon
 			try {
 				Pokemon pokemon= new Pokemon();
 				JSONObject JsonPokemon=new JSONObject(response);
@@ -145,7 +161,8 @@ public class ApiData {
 				pokemon.specialAttack=JsonPokemon.getJSONArray("stats").getJSONObject(3).getInt("base_stat");
 				pokemon.SpecialDefense=JsonPokemon.getJSONArray("stats").getJSONObject(4).getInt("base_stat");
 				pokemon.Speed=JsonPokemon.getJSONArray("stats").getJSONObject(5).getInt("base_stat");
-				callBackResponseData.Profile(pokemon);
+
+				callBackResponseData.Profile(pokemon);//callback with List of type Pokemon
 
 			} catch (JSONException e) {
 				e.printStackTrace();
@@ -155,6 +172,12 @@ public class ApiData {
 	}
 	public interface callBackPokemonData {void Profile(Pokemon pokemon);}
 
+	/**
+	 * Connect to PokeApi site and JSON string of requested endpoint.
+	 * @param Url PokeApi site Endpoint
+	 * @return JSON string, will return null if not successful
+	 * @throws IOException
+	 */
 	private String ApIResponse(String Url) throws IOException {
 		HttpURLConnection urlConnection = (HttpURLConnection) new URL(Url).openConnection();
 

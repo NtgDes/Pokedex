@@ -59,11 +59,18 @@ public class DetailedView extends DialogFragment {
 		return alertDialog;
 	}
 
+	/**
+	 * Set and display the new pokemon data
+	 * @param pokemonData Data to display
+	 */
 	public void RefreshData(Pokemon pokemonData){
 		PokemonData=pokemonData;
 		setData();
 	}
 
+	/**
+	 * Displays pokemon Data
+	 */
 	private void setData(){
 
 		if(PokemonData.Sprite==null)
@@ -76,8 +83,8 @@ public class DetailedView extends DialogFragment {
 
 		if(PokemonData.Type==null)return;
 
-		txtHeight.setText((PokemonData.Height/10)+"m");
-		txtWeight.setText((PokemonData.Weight/10)+"kg");
+		txtHeight.setText((PokemonData.Height/10f)+"m");
+		txtWeight.setText((PokemonData.Weight/10f)+"kg");
 		txtType.setText(PokemonData.Type+(PokemonData.TypeCount>1?" +"+(PokemonData.TypeCount-1):""));
 		txtSpecies.setText(PokemonData.Species);
 

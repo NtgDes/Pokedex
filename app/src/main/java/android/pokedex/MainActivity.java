@@ -35,80 +35,87 @@ public class MainActivity extends AppCompatActivity {
 		recyclerView=findViewById(R.id.recyclerView);
 		recyclerView.setLayoutManager(new GridLayoutManager(this,2));
 
-		Button btnSearch =findViewById(R.id.btnSearch);
+		Button btnSearch =findViewById(R.id.btnSearch); //Used to search for pokemon 'Name'
 		btnClear=findViewById(R.id.btnClear);
 		txtSearch=findViewById(R.id.txtSearch);
 
+		//connect to the PokeAPI site and GET a list of pokemons,
 		new ApiData(pokemons -> {
-			if(pokemons==null)return;
+			if(pokemons==null)return; //make sure the pokemons has data to display
 			Pokemons =pokemons;
-			recyclerView.setAdapter(new RecycleViewAdaptor(Pokemons));
+			recyclerView.setAdapter(new RecycleViewAdaptor(Pokemons));//display List
 
 		});
 
+		//search for search-text from pokemons name
 		btnSearch.setOnClickListener(view -> {
-			if(Pokemons ==null)return;
+			if(Pokemons ==null)return; //make sure the pokemons has data to search
 			List<Pokemon> Search= new ArrayList<>();
 
+			// loop through the data only adding pokemon that match (partial match also) entered text
 			for (int i = 0; i < Pokemons.size() ; i++) {
-				if (Pokemons.get(i).Name.contains(txtSearch.getText().toString().trim()))
+				if (Pokemons.get(i).Name.toLowerCase().contains(txtSearch.getText().toString().trim().toLowerCase()))//lower case remove case sensitivity
 					Search.add(Pokemons.get(i));
 			}
 
-			recyclerView.setAdapter(new RecycleViewAdaptor(Search));
+			recyclerView.setAdapter(new RecycleViewAdaptor(Search));//display result
 		});
+
+		//clear search text
 		btnClear.setOnClickListener(view -> {
 			txtSearch.setText("");
 			ResetSearch();
 		});
 
+		/*search for search-text from pokemons name that start with
+		  eg press 'A' to search all that start with 'A'*/
 		txtSearch.addTextChangedListener(new TextWatcher() {
 			@Override
 			public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
 			}
 			@Override
 			public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
 			}
 
 			@Override
 			public void afterTextChanged(Editable editable) {
+				//hide or show clear button depending if search text is available
 				if(txtSearch.getText().toString().trim().isEmpty()){
-					ResetSearch();
+					ResetSearch();// reset search results
 				}else{
 					btnClear.setVisibility(View.VISIBLE);
-					searchTimer+=2;
+					searchTimer+=2;//add a delay in case user is still typing
 					SearchDelay();
 				}
 			}
 		});
 
 	}
+	//reset all to the state before search
 	void ResetSearch() {
 		recyclerView.setAdapter(new RecycleViewAdaptor(Pokemons));
 		btnClear.setVisibility(View.INVISIBLE);
 		searchTimer=-1;
 	}
-	int searchTimer=-1;
+	int searchTimer=-1;//set delay to nothing
 	void SearchDelay(){
 
 		new Handler().postDelayed(() -> {
-			if (searchTimer == 0) {
-				searchTimer = -1;
+			if (searchTimer == 0) { // search for pokemons when =0
+				searchTimer = -1;//stop future search attempts
 				if (Pokemons == null) return;
 				List<Pokemon> Search = new ArrayList<>();
-
+				//search for pokemons that start with search text
 				for (int i = 0; i < Pokemons.size(); i++) {
-					if (Pokemons.get(i).Name.startsWith(txtSearch.getText().toString().trim()))
+					if (Pokemons.get(i).Name.toLowerCase().startsWith(txtSearch.getText().toString().trim().toLowerCase()))
 						Search.add(Pokemons.get(i));
 				}
-				recyclerView.setAdapter(new RecycleViewAdaptor(Search));
+				recyclerView.setAdapter(new RecycleViewAdaptor(Search));//display result
 			} else if (searchTimer > 0) {
-				searchTimer--;
+				searchTimer--;//reduce search wait time;
 				SearchDelay();
 			}
-		}, 1000);
+		}, 1000);//Search delay time
 	}
 
 	class RecycleViewAdaptor extends RecyclerView.Adapter<RecycleViewAdaptor.PokemonView>{
@@ -141,35 +148,39 @@ public class MainActivity extends AppCompatActivity {
 
 		@Override
 		public void onBindViewHolder(@NonNull PokemonView holder, int position) {
+			//set Card-view to show given pokemon data
 			holder.txtName.setText(pokemons.get(position).Name);
 			holder.txtID.setText("#"+pokemons.get(position).ID);
 
-			if (pokemons.get(position).Sprite==null){
+			if (pokemons.get(position).Sprite==null){//if no image was loaded it send request for image from site
+
+				//connect to the site and GET pokemon sprite
 				new ApiData(pokemons.get(position).SpriteURL, sprite -> {
 					if(sprite==null)
 						return;
-					pokemons.get(position).Sprite=sprite;
+					pokemons.get(position).Sprite=sprite;//store sprite to be use if needed later (Sprite cache)
 
-					holder.imgProfile.setImageBitmap(pokemons.get(position).Sprite);
+					holder.imgProfile.setImageBitmap(pokemons.get(position).Sprite);//displays sprite
 
 				});
-				holder.imgProfile.setImageResource(R.drawable.pokeball);
+				holder.imgProfile.setImageResource(R.drawable.pokeball);//displays sprite place holder
 			}else
-				holder.imgProfile.setImageBitmap(pokemons.get(position).Sprite);
+				holder.imgProfile.setImageBitmap(pokemons.get(position).Sprite);//displays cached sprite
 
 			holder.PokemonCard.setOnClickListener(view -> {
 
+				// setup for detailed view
 				DetailedView PokemonStats = new DetailedView();
 				PokemonStats.PokemonData=pokemons.get(position);
 				PokemonStats.show(getSupportFragmentManager(),null);
 
-				if(pokemons.get(position).Type==null)
+				if(pokemons.get(position).Type==null)//if no detailed data of pokemon was loaded it send request for data from PokeAPI site
 					new ApiData(pokemons.get(position).Name, 0, pokemon -> {
-						pokemon.Sprite=pokemons.get(position).Sprite;
+						pokemon.Sprite=pokemons.get(position).Sprite;//preserve sprite data
 						pokemon.SpriteURL=pokemons.get(position).SpriteURL;//? May no longer be necessary to preserve since bitmap available in var sprite
 						pokemons.set(position,pokemon);
 
-						PokemonStats.RefreshData(pokemons.get(position));
+						PokemonStats.RefreshData(pokemons.get(position));//update information displayed
 					});
 			});
 		}

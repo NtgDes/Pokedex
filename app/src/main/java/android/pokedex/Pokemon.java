@@ -11,9 +11,9 @@ public class Pokemon {
 
 	int Height,Weight;
 	String Species,Type;
-	int TypeCount;
+	int TypeCount;//show the number 'Type' it belong to
 
-	//stats
+	//pokemon stats
 	int HP, Attack,Defense,
 			specialAttack,SpecialDefense,
 			Speed;
