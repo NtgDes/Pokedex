@@ -108,7 +108,6 @@ public class MainActivity extends AppCompatActivity {
 				txtID =itemView.findViewById(R.id.txtID);
 				txtName=itemView.findViewById(R.id.txtName);
 				imgProfile =itemView.findViewById(R.id.imgProfile);
-
 			}
 		}
 
@@ -118,16 +117,14 @@ public class MainActivity extends AppCompatActivity {
 		public PokemonView onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
 
 			View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_cardview, parent, false);
-			PokemonView myViewHolder = new PokemonView(view);
 
-			return myViewHolder;
+			return new PokemonView(view);
 		}
 
 		@Override
 		public void onBindViewHolder(@NonNull PokemonView holder, int position) {
 			holder.txtName.setText(pokemons.get(position).Name);
 			holder.txtID.setText("#"+pokemons.get(position).ID);
-
 
 			if (pokemons.get(position).Sprite==null){
 				new ApiData(pokemons.get(position).SpriteURL, sprite -> {
@@ -142,27 +139,33 @@ public class MainActivity extends AppCompatActivity {
 			}else
 				holder.imgProfile.setImageBitmap(pokemons.get(position).Sprite);
 
+
+
 			holder.PokemonCard.setOnClickListener(view -> {
 
 				DetailedView PokemonStats = new DetailedView();
 				PokemonStats.PokemonData=pokemons.get(position);
 				PokemonStats.show(getSupportFragmentManager(),null);
 
+				if(pokemons.get(position).Type==null)
+					new ApiData(pokemons.get(position).Name, 0, new ApiData.callBackPokemonData() {
+						@Override
+						public void Profile(Pokemon pokemon) {
+							if(PokemonStats==null)return;
+							pokemon.Sprite=pokemons.get(position).Sprite;
+							pokemon.SpriteURL=pokemons.get(position).SpriteURL;//? May no longer be necessary to preserve since bitmap available in var sprite
+							pokemons.set(position,pokemon);
+
+							PokemonStats.RefreshData(pokemons.get(position));
+						}
+					});
 			});
-
 		}
-
 
 		@Override
 		public int getItemCount() {
 			return pokemons.size();
 		}
 	}
-
-
-
-
-
-
 
 }

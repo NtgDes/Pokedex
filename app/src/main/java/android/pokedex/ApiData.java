@@ -16,20 +16,27 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ApiData {
-	public static final String APIUrl = "https://pokeapi.co/api/v2/";
+	public static final String
+			APIUrl = "https://pokeapi.co/api/v2/",
+			SpriteURL = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/";
+
 	callBackPokemonList callBackResponseList;
 	callBackPokemonBitmap callBackResponseBitmap;
+	callBackPokemonData callBackResponseData;
 	public ApiData(callBackPokemonList response) {
 		callBackResponseList =response;
-		new GetData().execute();
+		new GetList().execute();
 	}
 	public ApiData(String spriteURL,callBackPokemonBitmap response) {
 		callBackResponseBitmap =response;
 		new GetImage(spriteURL).execute();
 	}
+	public ApiData(String Name,int ID,callBackPokemonData response) {
+		callBackResponseData =response;
+		new GetData(Name==null?""+ID:Name).execute();
+	}
 
-
-	private class GetData extends AsyncTask<Void, String, String> {
+	private class GetList extends AsyncTask<Void, String, String> {
 
 
 		@Override
@@ -76,7 +83,7 @@ public class ApiData {
 
 						pokemon.ID=i+1;
 						pokemon.Name=JsonList.getJSONObject(i).getString("name");
-						pokemon.DataUrl=JsonList.getJSONObject(i).getString("url");
+
 
 						//--todo resolve pokeApi get image
 						pokemon.SpriteURL="http://floatzel.net/pokemon/black-white/sprites/images/shiny/"+pokemon.ID+".png";
@@ -118,5 +125,78 @@ public class ApiData {
 		}
 	}
 	public interface callBackPokemonBitmap {void  bitmap(Bitmap sprite);}
+
+	private class GetData extends AsyncTask<Void, String, String> {
+		String nameID;
+		public GetData(String name) {
+			nameID=name;
+		}
+
+		@Override
+		protected String doInBackground(Void... voids) {
+
+			try {
+				HttpURLConnection urlConnection = (HttpURLConnection) new URL(APIUrl+"pokemon/"+nameID).openConnection();
+
+
+				urlConnection.setRequestMethod("GET");
+
+				if (urlConnection.getResponseCode() != HttpURLConnection.HTTP_OK) {
+					urlConnection.disconnect();
+					return null;
+				}
+
+				BufferedReader bufferedReaderIN = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
+				StringBuilder response = new StringBuilder();
+				String line;
+
+				while ((line = bufferedReaderIN.readLine()) != null) {
+					response.append(line);
+				}
+				bufferedReaderIN.close();
+				urlConnection.disconnect();
+
+				return response.toString();
+
+			} catch (Exception e) {
+				return null;
+			}
+		}
+
+		@Override
+		protected void onPostExecute(String response) {
+			if (response==null) return;
+			try {
+				Pokemon pokemon= new Pokemon();
+				JSONObject JsonPokemon=new JSONObject(response);
+
+				pokemon.ID= JsonPokemon.getInt("id");
+				pokemon.Name=JsonPokemon.getString("name");
+
+				pokemon.Height=JsonPokemon.getInt("height");
+				pokemon.Weight=JsonPokemon.getInt("weight");
+
+				pokemon.Species=JsonPokemon.getJSONObject("species").getString("name");
+
+				pokemon.TypeCount=JsonPokemon.getJSONArray("types").length();
+				pokemon.Type=JsonPokemon.getJSONArray("types").getJSONObject(0).getJSONObject("type").getString("name");
+
+				pokemon.HP=JsonPokemon.getJSONArray("stats").getJSONObject(0).getInt("base_stat");
+				pokemon.Attack=JsonPokemon.getJSONArray("stats").getJSONObject(1).getInt("base_stat");
+				pokemon.Defense=JsonPokemon.getJSONArray("stats").getJSONObject(2).getInt("base_stat");
+				pokemon.specialAttack=JsonPokemon.getJSONArray("stats").getJSONObject(3).getInt("base_stat");
+				pokemon.SpecialDefense=JsonPokemon.getJSONArray("stats").getJSONObject(4).getInt("base_stat");
+				pokemon.Speed=JsonPokemon.getJSONArray("stats").getJSONObject(5).getInt("base_stat");
+				callBackResponseData.Profile(pokemon);
+
+			} catch (JSONException e) {
+				e.printStackTrace();
+				return;
+			}
+
+		}
+	}
+	public interface callBackPokemonData {void Profile(Pokemon pokemon);}
+
 
 }

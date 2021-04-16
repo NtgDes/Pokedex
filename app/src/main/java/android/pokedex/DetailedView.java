@@ -13,6 +13,11 @@ import androidx.fragment.app.DialogFragment;
 
 public class DetailedView extends DialogFragment {
 	Pokemon PokemonData;
+	ImageView imgProfile;
+	TextView txtName,txtID,
+			txtHeight,txtWeight,
+			txtType,txtSpecies,txtHP,
+			txtDefense,txtSpeed;
 	@NonNull
 	@Override
 	public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
@@ -22,12 +27,27 @@ public class DetailedView extends DialogFragment {
 
 		View view=getActivity().getLayoutInflater().inflate(R.layout.fragment_detailed,null);
 
+		imgProfile=view.findViewById(R.id.imgProfile);
 
-		((ImageView) view.findViewById(R.id.imgProfile)).setImageBitmap(PokemonData.Sprite);
+		txtName=view.findViewById(R.id.txtName);
+		txtID=view.findViewById(R.id.txtID);
+		txtHeight=view.findViewById(R.id.txtHeight);
+		txtWeight=view.findViewById(R.id.txtWeight);
+		txtType=view.findViewById(R.id.txtType);
+		txtSpecies=view.findViewById(R.id.txtSpecies);
 
-		((TextView) view.findViewById(R.id.txtName)).setText(PokemonData.Name);
-		((TextView) view.findViewById(R.id.txtID)).setText("#"+PokemonData.ID);
+		txtHP=view.findViewById(R.id.txtHP);
 
+		txtDefense=view.findViewById(R.id.txtDefense);
+		txtSpeed=view.findViewById(R.id.txtSpeed);
+		txtHP=view.findViewById(R.id.txtHP);
+
+		txtDefense=view.findViewById(R.id.txtDefense);
+		txtSpeed=view.findViewById(R.id.txtSpeed);
+
+
+
+		setData();
 
 		builder.setView(view);
 
@@ -41,6 +61,30 @@ public class DetailedView extends DialogFragment {
 
 		return alertDialog;
 
+
+
+	}
+
+	public void RefreshData(Pokemon pokemonData){
+		PokemonData=pokemonData;
+		setData();
+	}
+	private void setData(){
+		imgProfile.setImageBitmap(PokemonData.Sprite);
+		txtName.setText(PokemonData.Name);
+		txtID.setText("#"+PokemonData.ID);
+
+		if(PokemonData.Type==null)return;
+
+		txtHeight.setText((PokemonData.Height/10)+"m");
+		txtWeight.setText((PokemonData.Weight/10)+"kg");
+		txtType.setText(PokemonData.Type+(PokemonData.TypeCount>1?" +"+(PokemonData.TypeCount-1):""));
+		txtSpecies.setText(PokemonData.Species);
+
+		txtHP.setText(""+PokemonData.HP);
+
+		txtDefense.setText(""+PokemonData.Defense);
+		txtSpeed.setText(""+PokemonData.Speed);
 
 
 	}
