@@ -65,7 +65,12 @@ public class DetailedView extends DialogFragment {
 	}
 
 	private void setData(){
-		imgProfile.setImageBitmap(PokemonData.Sprite);
+
+		if(PokemonData.Sprite==null)
+			imgProfile.setImageResource(R.drawable.pokeball);
+		else
+			imgProfile.setImageBitmap(PokemonData.Sprite);
+
 		txtName.setText(PokemonData.Name);
 		txtID.setText("#"+PokemonData.ID);
 

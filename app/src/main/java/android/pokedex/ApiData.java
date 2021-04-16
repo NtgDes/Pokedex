@@ -9,6 +9,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -37,35 +38,13 @@ public class ApiData {
 	}
 
 	private class GetList extends AsyncTask<Void, String, String> {
-
-
 		@Override
 		protected String doInBackground(Void... voids) {
 
 			try {
-				HttpURLConnection urlConnection = (HttpURLConnection) new URL(APIUrl+"pokemon/?limit=2000").openConnection();
-
-
-				urlConnection.setRequestMethod("GET");
-
-				if (urlConnection.getResponseCode() != HttpURLConnection.HTTP_OK) {
-					urlConnection.disconnect();
-					return null;
-				}
-
-				BufferedReader bufferedReaderIN = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
-				StringBuilder response = new StringBuilder();
-				String line;
-
-				while ((line = bufferedReaderIN.readLine()) != null) {
-					response.append(line);
-				}
-				bufferedReaderIN.close();
-				urlConnection.disconnect();
-
-				return response.toString();
-
+				return ApIResponse(APIUrl+"pokemon/?limit=2000");
 			} catch (Exception e) {
+				e.printStackTrace();
 				return null;
 			}
 		}
@@ -84,9 +63,8 @@ public class ApiData {
 						pokemon.ID=i+1;
 						pokemon.Name=JsonList.getJSONObject(i).getString("name");
 
-
-						//--todo resolve pokeApi get image
-						pokemon.SpriteURL="http://floatzel.net/pokemon/black-white/sprites/images/shiny/"+pokemon.ID+".png";
+						//--
+						pokemon.SpriteURL=SpriteURL+pokemon.ID+".png";
 
 						//--
 
@@ -96,10 +74,10 @@ public class ApiData {
 				}
 			} catch (JSONException e) {
 				e.printStackTrace();
-				return;
 			}
 
 		}
+
 	}
 	public interface callBackPokemonList {void  List(List<Pokemon> pokemons);}
 
@@ -136,29 +114,9 @@ public class ApiData {
 		protected String doInBackground(Void... voids) {
 
 			try {
-				HttpURLConnection urlConnection = (HttpURLConnection) new URL(APIUrl+"pokemon/"+nameID).openConnection();
-
-
-				urlConnection.setRequestMethod("GET");
-
-				if (urlConnection.getResponseCode() != HttpURLConnection.HTTP_OK) {
-					urlConnection.disconnect();
-					return null;
-				}
-
-				BufferedReader bufferedReaderIN = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
-				StringBuilder response = new StringBuilder();
-				String line;
-
-				while ((line = bufferedReaderIN.readLine()) != null) {
-					response.append(line);
-				}
-				bufferedReaderIN.close();
-				urlConnection.disconnect();
-
-				return response.toString();
-
+				return ApIResponse(APIUrl+"pokemon/"+nameID);
 			} catch (Exception e) {
+				e.printStackTrace();
 				return null;
 			}
 		}
@@ -191,12 +149,32 @@ public class ApiData {
 
 			} catch (JSONException e) {
 				e.printStackTrace();
-				return;
 			}
 
 		}
 	}
 	public interface callBackPokemonData {void Profile(Pokemon pokemon);}
 
+	private String ApIResponse(String Url) throws IOException {
+		HttpURLConnection urlConnection = (HttpURLConnection) new URL(Url).openConnection();
 
+		urlConnection.setRequestMethod("GET");
+
+		if (urlConnection.getResponseCode() != HttpURLConnection.HTTP_OK) {
+			urlConnection.disconnect();
+			return null;
+		}
+
+		BufferedReader bufferedReaderIN = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
+		StringBuilder response = new StringBuilder();
+		String line;
+
+		while ((line = bufferedReaderIN.readLine()) != null) {
+			response.append(line);
+		}
+		bufferedReaderIN.close();
+		urlConnection.disconnect();
+
+		return response.toString();
+	}
 }

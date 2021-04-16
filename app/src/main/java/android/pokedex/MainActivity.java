@@ -1,6 +1,7 @@
 package android.pokedex;
 
 import android.os.Bundle;
+import android.os.Handler;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
@@ -56,12 +57,9 @@ public class MainActivity extends AppCompatActivity {
 
 			recyclerView.setAdapter(new RecycleViewAdaptor(Search));
 		});
-		btnClear.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View view) {
-				txtSearch.setText("");
-				recyclerView.setAdapter(new RecycleViewAdaptor(Pokemons));
-			}
+		btnClear.setOnClickListener(view -> {
+			txtSearch.setText("");
+			ResetSearch();
 		});
 
 		txtSearch.addTextChangedListener(new TextWatcher() {
@@ -77,17 +75,41 @@ public class MainActivity extends AppCompatActivity {
 			@Override
 			public void afterTextChanged(Editable editable) {
 				if(txtSearch.getText().toString().trim().isEmpty()){
-
-					btnClear.setVisibility(View.INVISIBLE);
-
-				}else
+					ResetSearch();
+				}else{
 					btnClear.setVisibility(View.VISIBLE);
-
-
+					searchTimer+=2;
+					SearchDelay();
+				}
 			}
 		});
-	}
 
+	}
+	void ResetSearch() {
+		recyclerView.setAdapter(new RecycleViewAdaptor(Pokemons));
+		btnClear.setVisibility(View.INVISIBLE);
+		searchTimer=-1;
+	}
+	int searchTimer=-1;
+	void SearchDelay(){
+
+		new Handler().postDelayed(() -> {
+			if (searchTimer == 0) {
+				searchTimer = -1;
+				if (Pokemons == null) return;
+				List<Pokemon> Search = new ArrayList<>();
+
+				for (int i = 0; i < Pokemons.size(); i++) {
+					if (Pokemons.get(i).Name.startsWith(txtSearch.getText().toString().trim()))
+						Search.add(Pokemons.get(i));
+				}
+				recyclerView.setAdapter(new RecycleViewAdaptor(Search));
+			} else if (searchTimer > 0) {
+				searchTimer--;
+				SearchDelay();
+			}
+		}, 1000);
+	}
 
 	class RecycleViewAdaptor extends RecyclerView.Adapter<RecycleViewAdaptor.PokemonView>{
 		List<Pokemon> pokemons;
@@ -100,8 +122,6 @@ public class MainActivity extends AppCompatActivity {
 			TextView txtID, txtName;
 			ImageView imgProfile;
 
-
-
 			public PokemonView(@NonNull View itemView) {
 				super(itemView);
 				PokemonCard=itemView.findViewById(R.id.cvPokemon);
@@ -110,8 +130,6 @@ public class MainActivity extends AppCompatActivity {
 				imgProfile =itemView.findViewById(R.id.imgProfile);
 			}
 		}
-
-
 		@NonNull
 		@Override
 		public PokemonView onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -139,8 +157,6 @@ public class MainActivity extends AppCompatActivity {
 			}else
 				holder.imgProfile.setImageBitmap(pokemons.get(position).Sprite);
 
-
-
 			holder.PokemonCard.setOnClickListener(view -> {
 
 				DetailedView PokemonStats = new DetailedView();
@@ -148,24 +164,18 @@ public class MainActivity extends AppCompatActivity {
 				PokemonStats.show(getSupportFragmentManager(),null);
 
 				if(pokemons.get(position).Type==null)
-					new ApiData(pokemons.get(position).Name, 0, new ApiData.callBackPokemonData() {
-						@Override
-						public void Profile(Pokemon pokemon) {
-							if(PokemonStats==null)return;
-							pokemon.Sprite=pokemons.get(position).Sprite;
-							pokemon.SpriteURL=pokemons.get(position).SpriteURL;//? May no longer be necessary to preserve since bitmap available in var sprite
-							pokemons.set(position,pokemon);
+					new ApiData(pokemons.get(position).Name, 0, pokemon -> {
+						pokemon.Sprite=pokemons.get(position).Sprite;
+						pokemon.SpriteURL=pokemons.get(position).SpriteURL;//? May no longer be necessary to preserve since bitmap available in var sprite
+						pokemons.set(position,pokemon);
 
-							PokemonStats.RefreshData(pokemons.get(position));
-						}
+						PokemonStats.RefreshData(pokemons.get(position));
 					});
 			});
 		}
-
 		@Override
 		public int getItemCount() {
 			return pokemons.size();
 		}
 	}
-
 }
